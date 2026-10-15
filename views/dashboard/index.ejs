@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Student Portfolio Builder</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-slate-900 to-indigo-950 min-h-screen text-gray-100 font-sans pb-16 px-4 sm:px-6 lg:px-8">
+
+    <!-- Navigation Header (Choose Template button removed) -->
+    <header class="max-w-4xl mx-auto pt-6 pb-8 flex justify-between items-center border-b border-white/10 mb-8">
+        <div>
+            <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Portfolio Dashboard</h1>
+            <p class="text-sm text-gray-400">Welcome back, <%= user.name || portfolio.profile.fullName %></p>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="/logout" class="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-200 rounded-xl text-sm font-medium transition">Logout</a>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Form -->
+    <main class="max-w-4xl mx-auto">
+        <form action="/dashboard" method="POST" enctype="multipart/form-data" class="space-y-8">
+
+            <!-- 1. General Profile Section -->
+            <section class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
+                <h2 class="text-xl font-semibold text-blue-300 border-b border-white/10 pb-3">1. Personal Information</h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Full Name</label>
+                        <input type="text" name="fullName" value="<%= portfolio.profile.fullName || '' %>" required 
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">University / College</label>
+                        <input type="text" name="university" value="<%= portfolio.profile.university || '' %>" 
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                            placeholder="e.g., Gujarat Technological University">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Major / Degree</label>
+                        <input type="text" name="major" value="<%= portfolio.profile.major || '' %>" 
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                            placeholder="e.g., Computer Engineering">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Profile Picture</label>
+                        <input type="file" name="profilePicture" accept="image/*"
+                            class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 transition cursor-pointer">
+                        <% if (portfolio.profile.profilePicture) { %>
+                            <p class="text-xs text-green-400 mt-1">Current image uploaded.</p>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Professional Bio</label>
+                    <textarea name="bio" rows="3" 
+                        class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                        placeholder="Write a short summary about yourself..."><%= portfolio.profile.bio || '' %></textarea>
+                </div>
+            </section>
+
+            <!-- 2. Skills Section -->
+            <section class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
+                <h2 class="text-xl font-semibold text-blue-300 border-b border-white/10 pb-3">2. Skills</h2>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Core Skills (Comma separated)</label>
+                    <input type="text" name="skills" value="<%= portfolio.skills ? portfolio.skills.join(', ') : '' %>" 
+                        class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                        placeholder="JavaScript, Node.js, Python, MongoDB, Tailwind CSS">
+                </div>
+            </section>
+
+            <!-- 3. Projects Section -->
+            <section class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
+                <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                    <h2 class="text-xl font-semibold text-blue-300">3. Projects</h2>
+                    <button type="button" id="add-project-btn" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition">+ Add Another Project</button>
+                </div>
+
+                <div id="projects-container" class="space-y-6">
+                    <% if (portfolio.projects && portfolio.projects.length > 0) { %>
+                        <% portfolio.projects.forEach((proj) => { %>
+                            <div class="project-card p-5 border border-white/10 rounded-xl bg-white/5 space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Project Title</label>
+                                    <input type="text" name="projectTitle" value="<%= proj.title || '' %>" 
+                                        class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., E-Commerce Platform">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Description</label>
+                                    <textarea name="projectDescription" rows="2" 
+                                        class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Brief overview..."><%= proj.description || '' %></textarea>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Technologies Used</label>
+                                        <input type="text" name="technologies" value="<%= proj.technologies || '' %>" 
+                                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="React, Node.js">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Project Screenshot</label>
+                                        <input type="file" name="projectImages" accept="image/*"
+                                            class="w-full text-sm text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 transition cursor-pointer">
+                                        <% if (proj.image) { %>
+                                            <span class="text-xs text-green-400 mt-1 block">Image attached</span>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="project-card p-5 border border-white/10 rounded-xl bg-white/5 space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Project Title</label>
+                                <input type="text" name="projectTitle" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., E-Commerce Platform">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Description</label>
+                                <textarea name="projectDescription" rows="2" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Brief overview..."></textarea>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Technologies Used</label>
+                                    <input type="text" name="technologies" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="React, Node.js">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Project Screenshot</label>
+                                    <input type="file" name="projectImages" accept="image/*" class="w-full text-sm text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 transition cursor-pointer">
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </section>
+
+            <!-- 4. Achievements Section -->
+            <section class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
+                <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                    <h2 class="text-xl font-semibold text-blue-300">4. Achievements & Certificates</h2>
+                    <button type="button" id="add-achievement-btn" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition">+ Add Another Achievement</button>
+                </div>
+
+                <div id="achievements-container" class="space-y-6">
+                    <% if (portfolio.achievements && portfolio.achievements.length > 0) { %>
+                        <% portfolio.achievements.forEach((ach) => { %>
+                            <div class="achievement-card p-5 border border-white/10 rounded-xl bg-white/5 space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Achievement / Certificate Title</label>
+                                    <input type="text" name="achievementTitle" value="<%= ach.title || '' %>" 
+                                        class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Description / Issuer</label>
+                                        <input type="text" name="achievementDescription" value="<%= ach.description || '' %>" 
+                                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Certificate Badge / Image</label>
+                                        <input type="file" name="achievementImages" accept="image/*"
+                                            class="w-full text-sm text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 transition cursor-pointer">
+                                        <% if (ach.image) { %>
+                                            <span class="text-xs text-green-400 mt-1 block">Certificate attached</span>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="achievement-card p-5 border border-white/10 rounded-xl bg-white/5 space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Achievement / Certificate Title</label>
+                                <input type="text" name="achievementTitle" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., AWS Certified Developer">
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Description / Issuer</label>
+                                    <input type="text" name="achievementDescription" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Amazon Web Services">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Certificate Badge / Image</label>
+                                    <input type="file" name="achievementImages" accept="image/*" class="w-full text-sm text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 transition cursor-pointer">
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </section>
+
+            <!-- 5. Academics & Social Links Section -->
+            <section class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
+                <h2 class="text-xl font-semibold text-blue-300 border-b border-white/10 pb-3">5. Academics & Social Links</h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Key Subject / Course</label>
+                        <input type="text" name="subject" value="<%= portfolio.academics && portfolio.academics.length > 0 ? portfolio.academics[0].subject : '' %>" 
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                            placeholder="e.g., Data Structures & Algorithms">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">Grade / CGPA</label>
+                        <input type="text" name="grade" value="<%= portfolio.academics && portfolio.academics.length > 0 ? portfolio.academics[0].grade : '' %>" 
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                            placeholder="e.g., 9.2 CGPA or A+">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">LinkedIn URL</label>
+                        <input type="url" name="linkedin" value="<%= portfolio.socialLinks ? portfolio.socialLinks.linkedin : '' %>" 
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                            placeholder="https://linkedin.com/in/username">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1">GitHub URL</label>
+                        <input type="url" name="github" value="<%= portfolio.socialLinks ? portfolio.socialLinks.github : '' %>" 
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                            placeholder="https://github.com/username">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Choose Template Theme Section (Added directly into dashboard) -->
+            <section class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-4">
+                <h2 class="text-xl font-semibold text-blue-300 border-b border-white/10 pb-3">6. Select Portfolio Template</h2>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-2">Choose Layout Theme</label>
+                    <select name="selectedTheme" class="w-full px-4 py-3 bg-gray-900 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                        <option value="templateA" <%= portfolio.selectedTheme === 'templateA' ? 'selected' : '' %>>Template A (Modern Clean Layout)</option>
+                        <option value="templateB" <%= portfolio.selectedTheme === 'templateB' ? 'selected' : '' %>>Template B (Sidebar Dashboard Layout)</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Submit Button -->
+            <div class="pt-4">
+                <button type="submit" 
+                    class="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 transition duration-200 text-lg">
+                    Save & View Portfolio 🚀
+                </button>
+            </div>
+
+        </form>
+    </main>
+
+    <!-- Dynamic Add More Script -->
+    <script>
+        document.getElementById('add-project-btn').addEventListener('click', () => {
+            const container = document.getElementById('projects-container');
+            const card = container.firstElementChild.cloneNode(true);
+            card.querySelectorAll('input, textarea').forEach(el => el.value = '');
+            container.appendChild(card);
+        });
+
+        document.getElementById('add-achievement-btn').addEventListener('click', () => {
+            const container = document.getElementById('achievements-container');
+            const card = container.firstElementChild.cloneNode(true);
+            card.querySelectorAll('input, textarea').forEach(el => el.value = '');
+            container.appendChild(card);
+        });
+    </script>
+</body>
+</html>

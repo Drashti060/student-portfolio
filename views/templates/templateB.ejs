@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= portfolio.profile.fullName ? portfolio.profile.fullName : 'Portfolio' %> - Sidebar Portfolio</title>
+    
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Print Media Styling to Fix Layout & Hide Elements During PDF Export -->
+    <style>
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                display: block !important;
+                background: #0f172a !important;
+                color: #ffffff !important;
+                -webkit-print-color-adjust: exact;
+            }
+            aside {
+                position: relative !important;
+                width: 100% !important;
+                height: auto !important;
+                transform: none !important;
+            }
+            main {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-slate-900 text-gray-800 dark:text-gray-200 font-sans antialiased flex flex-col md:flex-row relative">
+
+    <!-- Mobile Header -->
+    <div class="md:hidden flex justify-between items-center bg-slate-900 text-white p-4 sticky top-0 z-50 shadow-md">
+        <span class="font-bold text-xl"><%= portfolio.profile.fullName ? portfolio.profile.fullName.split(' ')[0] : 'User' %>'s Portfolio</span>
+        <button id="mobile-menu-btn" class="text-white focus:outline-none">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-full md:w-72 lg:w-80 h-auto md:h-screen md:fixed top-0 left-0 bg-slate-900 text-white flex flex-col shadow-2xl z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 absolute md:static">
+        
+        <!-- Profile Info -->
+        <div class="p-8 flex flex-col items-center border-b border-slate-800">
+            <div class="relative w-32 h-32 mb-4 group">
+                <div class="absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                <img src="<%= portfolio.profile.profilePicture || '/images/default-avatar.png' %>" alt="<%= portfolio.profile.fullName %>" class="relative z-10 w-full h-full rounded-full border-4 border-slate-700 object-cover shadow-lg">
+            </div>
+            <h1 class="text-2xl font-bold text-center tracking-wide"><%= portfolio.profile.fullName %></h1>
+            <p class="text-blue-400 text-sm mt-2 text-center font-medium"><%= portfolio.profile.bio %></p>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex flex-col flex-grow py-6 px-8 space-y-2 overflow-y-auto">
+            <a href="#about" class="nav-item py-2 text-slate-400 hover:text-white hover:translate-x-2 transition-all duration-300 font-medium">
+                <i class="fas fa-user w-6 text-blue-500"></i> About
+            </a>
+            <% if (portfolio.skills && portfolio.skills.length > 0) { %>
+            <a href="#skills" class="nav-item py-2 text-slate-400 hover:text-white hover:translate-x-2 transition-all duration-300 font-medium">
+                <i class="fas fa-code w-6 text-blue-500"></i> Skills
+            </a>
+            <% } %>
+            <% if (portfolio.projects && portfolio.projects.length > 0) { %>
+            <a href="#projects" class="nav-item py-2 text-slate-400 hover:text-white hover:translate-x-2 transition-all duration-300 font-medium">
+                <i class="fas fa-laptop-code w-6 text-blue-500"></i> Projects
+            </a>
+            <% } %>
+            <% if (portfolio.academics && portfolio.academics.length > 0) { %>
+            <a href="#education" class="nav-item py-2 text-slate-400 hover:text-white hover:translate-x-2 transition-all duration-300 font-medium">
+                <i class="fas fa-graduation-cap w-6 text-blue-500"></i> Academics
+            </a>
+            <% } %>
+            <% if (portfolio.achievements && portfolio.achievements.length > 0) { %>
+            <a href="#achievements" class="nav-item py-2 text-slate-400 hover:text-white hover:translate-x-2 transition-all duration-300 font-medium">
+                <i class="fas fa-trophy w-6 text-blue-500"></i> Achievements
+            </a>
+            <% } %>
+            <a href="#contact" class="nav-item py-2 text-slate-400 hover:text-white hover:translate-x-2 transition-all duration-300 font-medium">
+                <i class="fas fa-envelope w-6 text-blue-500"></i> Contact
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer (Socials & Theme) -->
+        <div class="p-6 border-t border-slate-800 flex justify-center items-center space-x-4">
+            <% if (portfolio.socialLinks) { %>
+                <% if (portfolio.socialLinks.linkedin) { %>
+                    <a href="<%= portfolio.socialLinks.linkedin %>" target="_blank" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 transition-colors shadow-md"><i class="fab fa-linkedin-in"></i></a>
+                <% } %>
+                <% if (portfolio.socialLinks.github) { %>
+                    <a href="<%= portfolio.socialLinks.github %>" target="_blank" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 transition-colors shadow-md"><i class="fab fa-github"></i></a>
+                <% } %>
+                <% if (portfolio.socialLinks.twitter) { %>
+                    <a href="<%= portfolio.socialLinks.twitter %>" target="_blank" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 transition-colors shadow-md"><i class="fab fa-twitter"></i></a>
+                <% } %>
+                <% if (portfolio.socialLinks.website) { %>
+                    <a href="<%= portfolio.socialLinks.website %>" target="_blank" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 transition-colors shadow-md"><i class="fas fa-globe"></i></a>
+                <% } %>
+            <% } %>
+            <button id="theme-toggle" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-yellow-500 hover:text-slate-900 transition-colors shadow-md">
+                <i class="fas fa-moon" id="theme-icon"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="w-full md:w-[calc(100%-18rem)] lg:w-[calc(100%-20rem)] md:ml-72 lg:ml-80 relative">
+        
+        <!-- About Section -->
+        <section id="about" class="min-h-screen flex flex-col justify-center px-6 py-20 md:px-16 lg:px-24">
+            <div data-aos="fade-up">
+                <p class="text-blue-600 dark:text-blue-400 font-semibold mb-4 tracking-wider uppercase">Introduction</p>
+                <h2 class="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white mb-6">
+                    Hi, I am <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600"><%= portfolio.profile.fullName %></span>
+                </h2>
+                <h3 class="text-2xl md:text-3xl font-medium text-slate-600 dark:text-slate-300 mb-8">
+                    I build <span id="typed-text" class="font-bold text-slate-800 dark:text-white"></span>
+                </h3>
+                
+                <div class="glass-card bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg p-8 rounded-2xl shadow-xl border border-white/20 dark:border-slate-700/50 mb-10 max-w-3xl leading-relaxed">
+                    <p class="text-lg"><%= portfolio.profile.bio %></p>
+                    
+                    <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-medium">
+                        <% if (portfolio.profile.university) { %>
+                            <div class="flex items-center"><i class="fas fa-university text-blue-500 w-6"></i> <%= portfolio.profile.university %></div>
+                        <% } %>
+                        <% if (portfolio.profile.major) { %>
+                            <div class="flex items-center"><i class="fas fa-graduation-cap text-blue-500 w-6"></i> <%= portfolio.profile.major %></div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Divider -->
+        <div class="w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent"></div>
+
+        <!-- Skills Section -->
+        <% if (portfolio.skills && portfolio.skills.length > 0) { %>
+        <section id="skills" class="px-6 py-20 md:px-16 lg:px-24">
+            <div data-aos="fade-right">
+                <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Technical Skills</h2>
+                <div class="w-16 h-1 bg-blue-600 rounded mb-10"></div>
+            </div>
+
+            <div class="flex flex-wrap gap-4">
+                <% portfolio.skills.forEach((skill, index) => { %>
+                    <div class="glass-card px-6 py-3 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg shadow-sm flex items-center" data-aos="fade-up">
+                        <span class="w-2 h-2 rounded-full bg-blue-500 mr-3"></span>
+                        <span class="font-medium text-slate-700 dark:text-slate-200"><%= skill %></span>
+                    </div>
+                <% }) %>
+            </div>
+        </section>
+        <% } %>
+
+        <!-- Divider -->
+        <div class="w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent"></div>
+
+        <!-- Projects Section -->
+        <% if (portfolio.projects && portfolio.projects.length > 0) { %>
+        <section id="projects" class="px-6 py-20 md:px-16 lg:px-24">
+            <div data-aos="fade-right">
+                <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Featured Projects</h2>
+                <div class="w-16 h-1 bg-purple-600 rounded mb-10"></div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <% portfolio.projects.forEach((project) => { %>
+                    <div class="group bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-md flex flex-col">
+                        
+                        <!-- Project Image -->
+                        <div class="h-48 overflow-hidden relative bg-slate-100 dark:bg-slate-700">
+                            <% if (project.image) { %>
+                                <img src="<%= project.image %>" alt="<%= project.title %>" class="w-full h-full object-cover">
+                            <% } else { %>
+                                <div class="w-full h-full flex items-center justify-center">
+                                    <i class="fas fa-code text-4xl text-slate-300 dark:text-slate-600"></i>
+                                </div>
+                            <% } %>
+                        </div>
+                        
+                        <!-- Project Details -->
+                        <div class="p-6 flex flex-col flex-grow">
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2"><%= project.title %></h3>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm mb-6 flex-grow"><%= project.description %></p>
+                            
+                            <% 
+                            let techs = [];
+                            if (Array.isArray(project.technologies)) {
+                                techs = project.technologies;
+                            } else if (typeof project.technologies === 'string' && project.technologies.trim().length > 0) {
+                                techs = project.technologies.split(',').map(t => t.trim());
+                            }
+                            %>
+                            <% if (techs.length > 0) { %>
+                                <div class="flex flex-wrap gap-2 pt-4 border-t border-slate-100 dark:border-slate-700">
+                                    <% techs.forEach(tech => { %>
+                                        <span class="text-xs font-semibold px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded">
+                                            <%= tech %>
+                                        </span>
+                                    <% }) %>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </section>
+        <% } %>
+
+        <!-- Divider -->
+        <div class="w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent"></div>
+
+        <!-- Academics Section -->
+        <% if (portfolio.academics && portfolio.academics.length > 0) { %>
+        <section id="education" class="px-6 py-20 md:px-16 lg:px-24">
+            <div data-aos="fade-right">
+                <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Academics</h2>
+                <div class="w-16 h-1 bg-blue-600 rounded mb-10"></div>
+            </div>
+
+            <div class="space-y-6 border-l-2 border-slate-200 dark:border-slate-700 ml-3">
+                <% portfolio.academics.forEach((acad) => { %>
+                    <div class="relative pl-8">
+                        <div class="absolute w-4 h-4 bg-blue-500 rounded-full -left-[9px] top-1 border-4 border-gray-50 dark:border-slate-900 box-content"></div>
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-white"><%= acad.subject %></h3>
+                            <% if (acad.grade) { %>
+                                <p class="mt-3 inline-block px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-semibold rounded-full">Grade / CGPA: <%= acad.grade %></p>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </section>
+        <% } %>
+
+        <!-- Achievements Section -->
+        <% if (portfolio.achievements && portfolio.achievements.length > 0) { %>
+        <section id="achievements" class="px-6 py-20 md:px-16 lg:px-24">
+            <div data-aos="fade-right">
+                <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Achievements</h2>
+                <div class="w-16 h-1 bg-purple-600 rounded mb-10"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <% portfolio.achievements.forEach((achieve) => { %>
+                    <div class="flex items-start bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                        <div class="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center flex-shrink-0 mr-4">
+                            <i class="fas fa-award text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-white text-lg"><%= achieve.title %></h3>
+                            <% if (achieve.description) { %>
+                                <p class="text-sm text-slate-600 dark:text-slate-400 mt-1"><%= achieve.description %></p>
+                            <% } %>
+                            <% if (achieve.image) { %>
+                                <img src="<%= achieve.image %>" alt="Certificate" class="mt-3 rounded-lg w-full h-32 object-cover border border-slate-700">
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </section>
+        <% } %>
+
+        <!-- ========================================== -->
+        <!-- DOWNLOAD PDF BUTTON (At the Bottom & Hidden in PDF) -->
+        <!-- ========================================== -->
+        <div class="no-print px-6 py-12 md:px-16 lg:px-24 flex justify-center">
+            <a href="/portfolio/download" 
+               class="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-2xl shadow-xl shadow-blue-600/30 transition-all duration-300 transform hover:-translate-y-0.5">
+                <i class="fas fa-file-pdf text-xl transition-transform group-hover:scale-110"></i>
+                Download Professional PDF Portfolio
+            </a>
+        </div>
+
+        <!-- Footer / Contact -->
+        <footer id="contact" class="bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-6 py-12 md:px-16 lg:px-24 text-center mt-10">
+            <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-6">Portfolio Preview</h2>
+            <p class="text-slate-500 dark:text-slate-500">
+                &copy; <script>document.write(new Date().getFullYear())</script> <%= portfolio.profile.fullName %>. Built with Student Portfolio Builder.
+            </p>
+        </footer>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
+    <script>
+        AOS.init({ once: true, offset: 50, duration: 800 });
+        const typedEl = document.getElementById('typed-text');
+        if (typedEl) {
+            new Typed('#typed-text', {
+                strings: ['Modern Web Apps', 'Creative Portfolios', 'Robust Backends', 'Digital Experiences'],
+                typeSpeed: 50, backSpeed: 30, loop: true
+            });
+        }
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        if(mobileBtn && sidebar) {
+            mobileBtn.addEventListener('click', () => { sidebar.classList.toggle('-translate-x-full'); });
+        }
+    </script>
+    <script src="/js/darkmode.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>
